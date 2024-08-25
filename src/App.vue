@@ -4,6 +4,7 @@ import {ref,computed} from 'vue'
 const name=ref('')
 const dob=ref('')
 const rowId=ref(-1)
+const rowIndex=ref(-1)
 
 const personList=ref([])
 
@@ -11,31 +12,31 @@ function addData()
 {
   if(validData())
   {
-    personList.value.push({'name':name.value,'dob':dob.value})
+    personList.value.push({'id':Math.random(),'name':name.value,'dob':dob.value})
     name.value=dob.value=''
   }
 }
 
 function selectRow(index)
 {
-    rowId.value=index
+    rowIndex.value=index
+    rowId.value=personList.value[index].id
     name.value=personList.value[index].name
-    dob.value=personList.value[index].dob
-  
+    dob.value=personList.value[index].dob  
 }
 
 function editData()
 {
-  if(validData() && rowId.value>-1)
+  if(validData() && rowIndex.value>-1)
   {
-    personList.value[rowId.value].name=name.value
-    personList.value[rowId.value].dob=dob.value
+    personList.value[rowIndex.value].name=name.value
+    personList.value[rowIndex.value].dob=dob.value
 
     name.value=dob.value=''
   }
 }
 
-function deleteData()
+/*function deleteData()
 {
   if(rowId.value>-1)
   {
@@ -43,6 +44,12 @@ function deleteData()
 
     name.value=dob.value=''
   }
+}*/
+
+const deleteData=()=> {  
+  personList.value=personList.value.filter(person=>person.id!==rowId.value)
+
+  name.value=dob.value=''
 }
 
 const avgAge=computed(()=>{return personList.value.reduce(calculateTotalAge,0)/personList.value.length})
@@ -81,7 +88,7 @@ function validData()
             Age
         </div>        
     </div>
-    <div class="Row" v-for="(person, index) in personList" :key="index" @click=selectRow(index)>
+    <div class="Row" v-for="(person, index) in personList" :key="person.id" @click=selectRow(index)>
         <div class="Cell">
           {{person.name}}
         </div>
