@@ -6,7 +6,9 @@ const dob=ref('')
 const rowId=ref(-1)
 const rowIndex=ref(-1)
 
-const personList=ref([])
+const personList=ref([{'id':1,'name':'bdummy','dob':'2008-10-10'},{'id':2,'name':'adummy','dob':'2009-10-10'}])
+
+const sortedList=computed(()=>[...personList.value].sort((a,b)=>a.name.localeCompare(b.name)))
 
 function addData()
 {
@@ -17,20 +19,22 @@ function addData()
   }
 }
 
-function selectRow(index)
+function selectRow(id)
 {
-    rowIndex.value=index
-    rowId.value=personList.value[index].id
-    name.value=personList.value[index].name
-    dob.value=personList.value[index].dob  
+    //rowIndex.value=index
+    let tmpPersonList=personList.value.filter(p=>p.id===id)
+    rowId.value=tmpPersonList[0].id
+    name.value=tmpPersonList[0].name
+    dob.value=tmpPersonList[0].dob  
 }
 
 function editData()
 {
-  if(validData() && rowIndex.value>-1)
+  if(validData())
   {
-    personList.value[rowIndex.value].name=name.value
-    personList.value[rowIndex.value].dob=dob.value
+    let tmpPersonList=personList.value.filter(p=>p.id===rowId.value)
+    tmpPersonList[0].name=name.value
+    tmpPersonList[0].dob=dob.value
 
     name.value=dob.value=''
   }
@@ -59,12 +63,16 @@ function calculateTotalAge(total,person)
   return (total + (new Date()).getYear()-(new Date(person.dob)).getYear())
 }
 
+/*
 const getAge=computed(()=>{return personList.value.map(calculateAge)})
 
 function calculateAge(person)
 {
   return ((new Date()).getYear()-(new Date(person.dob)).getYear())
 }
+*/
+
+const getAge=(dob)=>((new Date()).getYear()-(new Date(dob)).getYear())
 
 function validData()
 {
@@ -88,7 +96,7 @@ function validData()
             Age
         </div>        
     </div>
-    <div class="Row" v-for="(person, index) in personList" :key="person.id" @click=selectRow(index)>
+    <div class="Row" v-for="(person, index) in sortedList" :key="person.id" @click=selectRow(person.id)>
         <div class="Cell">
           {{person.name}}
         </div>
@@ -96,7 +104,7 @@ function validData()
           {{person.dob}}
         </div> 
         <div class="Cell">
-          {{getAge[index]}}
+          {{getAge(person.dob)}}
         </div>       
     </div>       
 </div>
